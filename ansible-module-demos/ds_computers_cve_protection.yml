@@ -1,0 +1,37 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+      query: '{{ lookup("env", "query") }}'
+  tasks:
+  - name: Query Deep Security for CVE covering IPS rules
+    ds_query_cve:
+      query: "{{ query }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: query_result
+    delegate_to: localhost
+
+  - name: Ensure that Computer Object in Deep Security is protected
+    ds_ips:
+      hostname: "{{ inventory_hostname }}"
+      identifier: "{{ item }}"
+      state: present
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    with_items: "{{ query_result.json.rules_covering }}"
+    delegate_to: localhost
+
+# Sample
+# ansible-playbook ds_computers_cve_protection.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "query": "CVE-2017-8779"}'
+#
+# "msg": {
+#         "matched": true,
+#         "rules_covering": [
+#             "1008371",
+#             "1008315"
+#         ]
+# }

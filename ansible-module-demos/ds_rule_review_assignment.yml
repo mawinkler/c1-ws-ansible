@@ -1,0 +1,37 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+      query: '{{ lookup("env", "query") }}'
+      hostname: '{{ lookup("env", "hostname") }}'
+  tasks:
+  - name: Query Deep Security IPS rules covering a CVE list
+    ds_query_cves_cached:
+      query: "{{ query }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: cvs_query_result
+    delegate_to: localhost
+
+  - name: Query Deep Security Protection Status
+    ds_protection_status:
+      hostname: "{{ hostname }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: status_result
+    delegate_to: localhost
+
+  - name: Rules to review and potentially assign
+    debug:
+      msg: "{{ cvs_query_result.json.rules_covering | difference(status_result.json.rules_covering) }}"
+
+# Sample
+# ansible-playbook ds_rule_review_assignment.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "hostname":"ubuntu", "query":[CVE-2017-8779]}'
+#
+#     "msg": [
+#         "1008371",
+#         "1008315"
+#      ]

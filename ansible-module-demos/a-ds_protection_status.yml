@@ -1,0 +1,20 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+  tasks:
+  - name: Query Deep Security Protection Status
+    ds_protection_status:
+      hostname: "{{ item }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: ds_result
+    with_items: "{{ inventory_hostname }}"
+    delegate_to: localhost
+
+  - name: Print result
+    debug:
+      msg: "{{ ds_result.results.0.json }}"

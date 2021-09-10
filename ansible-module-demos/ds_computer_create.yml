@@ -1,0 +1,31 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+      hostname: '{{ lookup("env", "hostname") }}'
+      group_id: '{{ lookup("env", "group_id") }}'
+  tasks:
+  - name: Create Computer Object in Deep Security
+    ds:
+      hostname: "{{ hostname }}"
+      state: present
+      group_id: "{{ group_id }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: ds_result
+
+  - name: Print result
+    debug:
+      msg: "{{ ds_result }}"
+
+# Sample
+# ansible-playbook ds_computer_create.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "hostname": "test1.lan", "group_id": 83}'
+#
+# "msg": {
+#         "changed": true,
+#         "failed": false,
+#         "message": ""
+# }

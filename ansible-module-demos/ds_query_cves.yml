@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+      query: '{{ lookup("env", "query") }}'
+  tasks:
+  - name: Query Deep Security IPS rules covering a CVE list
+    ds_query_cves_cached:
+      query: "{{ query }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: ds_result
+
+  - name: Print result
+    debug:
+      msg: "{{ ds_result.json }}"
+
+# Sample
+# ansible-playbook ds_query_cves.yml --extra-vars '{"dsm_url":"<URL>",
+#                                                   "api_key":"<API-KEY>",
+#                                                   "query":[CVE-2018-5019, CVE-2018-8236]}'  
+#
+# "msg": {
+#     "cves_matched": 2,
+#     "cves_unmatched": 0,
+#     "rules_covering": [
+#         "1009137",
+#         "1009207"
+#     ]
+# }

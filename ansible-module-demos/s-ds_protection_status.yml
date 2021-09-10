@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+      hostname: '{{ lookup("env", "hostname") }}'
+  tasks:
+  - name: Query Deep Security Protection Status
+    ds_protection_status:
+      hostname: "{{ hostname }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: ds_result
+
+  - name: Print result
+    debug:
+      msg: "{{ ds_result.json }}"
+
+# Sample
+# ansible-playbook s-ds_protection_status.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "hostname":"ubuntu"}'
+#
+# "msg": {
+#     "cves_covered": [
+#         "CVE-2017-8045",
+#         "CVE-2014-3566",
+#         "CVE-2011-3389",
+#         "CVE-2016-8858",
+#         "CVE-2014-3568",
+#         "CVE-2015-0138",
+#         "CVE-2015-1637",
+#         "CVE-2018-8414",
+#         "CVE-2017-15908",
+#         "CVE-2015-1716",
+#         "CVE-2015-0204",
+#         "CVE-2015-4000"
+#     ],
+#     "rules_covering": [
+#         "1009238",
+#         "1009126",
+#         "1006561",
+#         "1006740",
+#         "1008515",
+#         "1008793",
+#         "1006296",
+#         "1006298"
+#     ]
+# }

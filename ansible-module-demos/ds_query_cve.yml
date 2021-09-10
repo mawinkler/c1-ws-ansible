@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+      query: '{{ lookup("env", "query") }}'
+  tasks:
+  - name: Query Deep Security for CVE covering IPS rules
+    ds_query_cve:
+      query: "{{ query }}"
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: ds_result
+
+  - name: Print result
+    debug:
+      msg: "{{ ds_result.json }}"
+
+# Sample
+# ansible-playbook ds_query_cve.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "query":"CVE-2015-1716"}'
+#
+# "msg": {
+#     "matched": true,
+#     "rules_covering": [
+#         "1006741",
+#         "1006740"
+#     ]
+# }

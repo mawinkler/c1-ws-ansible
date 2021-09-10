@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    extra_vars:
+      dsm_url: '{{ lookup("env", "dsm_url") }}'
+      api_key: '{{ lookup("env", "api_key") }}'
+      hostname: '{{ lookup("env", "hostname") }}'
+  tasks:
+  - name: Delete Computer Object in Deep Security
+    ds:
+      hostname: "{{ hostname }}"
+      state: absent
+      dsm_url: "https://{{ dsm_url }}:4119"
+      api_key: "{{ api_key }}"
+    register: ds_result
+
+  - name: Print result
+    debug:
+      msg: "{{ ds_result }}"
+
+# Sample
+# ansible-playbook ds_computer_delete.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "hostname": "test1.lan"}'
+#
+# "msg": {
+#         "changed": true,
+#         "failed": false,
+#         "message": ""
+# }
