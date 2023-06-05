@@ -1,11 +1,10 @@
-# Cloud One Workload Security with Ansible
+# Deep Security and Workload Security with Ansible<!-- omit in toc -->
 
-- [Cloud One Workload Security with Ansible](#cloud-one-workload-security-with-ansible)
-  - [Objective](#objective)
-    - [Deploy DSA](#deploy-dsa)
-    - [Module Demos](#module-demos)
-  - [Support](#support)
-  - [Contribute](#contribute)
+- [Objective](#objective)
+  - [Deploy DSA](#deploy-dsa)
+  - [Module Demos](#module-demos)
+- [Support](#support)
+- [Contribute](#contribute)
 
 ## Objective
 
