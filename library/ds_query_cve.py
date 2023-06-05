@@ -1,11 +1,7 @@
 #!/usr/bin/python
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
+ANSIBLE_METADATA = {"metadata_version": "1.1", "status": ["preview"], "supported_by": "community"}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: ds_protection_status
 
@@ -32,9 +28,9 @@ options:
 
 author:
     - Markus Winkler (markus_winkler@trendmicro.com)
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Retriece IPS rule identifiers coverering a given CVE
   - name: Query Deep Security for CVE covering IPS rules
     ds_query_cve:
@@ -47,9 +43,9 @@ EXAMPLES = '''
 ansible-playbook ds_query_cve.yml --extra-vars '{"dsm_url":"<URL>",
                                                  "api_key":"<API-KEY>",
                                                  "query":"CVE-2015-1716"}'
-'''
+"""
 
-RETURN = '''
+RETURN = """
 ds_query_cves:
     description: The list of IPS rules covering a given CVE
     type: dict
@@ -61,10 +57,11 @@ ds_query_cves:
             "1006740"
         ]
     }
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 import ssl
+
 ssl._create_default_https_context = ssl._create_unverified_context
 
 import requests
@@ -76,23 +73,17 @@ def run_module():
 
     # Argument & parameter definitions
     module_args = dict(
-        query=dict(type='str', required=True),
-        dsm_url=dict(type='str', required=True),
-        api_key=dict(type='str', required=True)
+        query=dict(type="str", required=True),
+        dsm_url=dict(type="str", required=True),
+        api_key=dict(type="str", required=True),
     )
 
     # Result dictionary
-    result = dict(
-        changed=False,
-        message=''
-    )
+    result = dict(changed=False, message="")
 
     # The AnsibleModule
     # We support check mode
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
     # If in check mode return empty result set
     if module.check_mode:
@@ -107,34 +98,42 @@ def run_module():
     RESULT_SET_SIZE = 1000
 
     # Query rule identifier
-    url = module.params['dsm_url'] + "/api/intrusionpreventionrules/search"
-    data = { "maxItems": RESULT_SET_SIZE,
-             "searchCriteria": [ { "fieldName": "CVE", "stringTest": "equal", "stringValue": "%"+module.params['query']+"%", "stringWildcards": "true" } ] }
-    post_header = { "Content-type": "application/json",
-                    "api-secret-key": module.params['api_key'],
-                    "api-version": "v1"}
+    url = module.params["dsm_url"] + "/api/intrusionpreventionrules/search"
+    data = {
+        "maxItems": RESULT_SET_SIZE,
+        "searchCriteria": [
+            {
+                "fieldName": "CVE",
+                "stringTest": "equal",
+                "stringValue": "%" + module.params["query"] + "%",
+                "stringWildcards": "true",
+            }
+        ],
+    }
+    post_header = {"Content-type": "application/json", "api-secret-key": module.params["api_key"], "api-version": "v1"}
     response = requests.post(url, data=json.dumps(data), headers=post_header, verify=False).json()
 
-    if 'intrusionPreventionRules' not in response:
+    if "intrusionPreventionRules" not in response:
         matched = False
     else:
-        results = response['intrusionPreventionRules']
+        results = response["intrusionPreventionRules"]
         for rule in results:
-            rules.add(rule['identifier'])
+            rules.add(rule["identifier"])
             matched = True
 
     # Populate result set
-    result['json'] = { "rules_covering": rules,
-                       "matched": matched }
+    result["json"] = {"rules_covering": rules, "matched": matched}
 
     # We didn't change anything on the host
-    result['changed'] = False
+    result["changed"] = False
 
     # Return key/value results
     module.exit_json(**result)
 
+
 def main():
     run_module()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

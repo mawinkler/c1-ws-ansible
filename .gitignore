@@ -1,0 +1,5 @@
+roles/deepsecurity-agent/PlatformDetection
+roles/deepsecurity-agent/dsa.sh
+vars/vars_dsm.yml.my
+vars/vars_ws.yml.my
+inventory/hosts.yaml.my

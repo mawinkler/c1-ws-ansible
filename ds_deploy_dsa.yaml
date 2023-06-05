@@ -1,0 +1,98 @@
+---
+# #####################################################################
+# Deploy DSA
+# #####################################################################
+- name: Deploy DSA
+  hosts: labenv
+
+  tasks:
+    - name: Include vars
+      include_vars: vars/vars.yml
+
+    - name: Include vars
+      include_vars: vars/vars_ws.yml
+      when: deepsecurity_variant == "ws"
+
+    - name: Include vars
+      include_vars: vars/vars_dsm.yml
+      when: deepsecurity_variant == "dsm"
+
+    - name: Deploy DSA with WS
+      include_role:
+        name: deepsecurity-agent
+      vars:
+        operation: deploy
+        deepsecurity_tenant_id: "{{ tenant_id }}"
+        # deepsecurity_tenant_password: "{{ tenant_password }}"
+        deepsecurity_token: "{{ token }}"
+        force_reactivation: True
+      when: deepsecurity_variant == "ws"
+
+    - name: Deploy DSA with DSM
+      include_role:
+        name: deepsecurity-agent
+      vars:
+        operation: deploy
+        dsm_agent_download_hostname: "{{ agent_download_hostname }}"
+        dsm_agent_download_port: "{{ agent_download_port }}"
+        dsm_agent_activation_hostname: "{{ agent_activation_hostname }}"
+        dsm_agent_activation_port: "{{ agent_activation_port }}"
+        force_reactivation: True
+      when: deepsecurity_variant == "dsm"
+
+- name: Set Linux Server policy
+  hosts: labenv
+  tasks:
+    - name: Set Policy
+      include_role:
+        name: deepsecurity-agent
+      vars:
+        operation: set-policy-by-name
+        policy_name: Linux Server
+      when: ansible_os_family != "Windows"
+
+- name: Set Windows Server policy
+  hosts: labenv
+  tasks:
+    - name: Set Policy
+      include_role:
+        name: deepsecurity-agent
+      vars:
+        operation: set-policy-by-name
+        policy_name: Windows Server
+      when: ansible_os_family == "Windows"
+
+- name: Update Configuration
+  hosts: labenv
+  tasks:
+    - name: Update Configuration
+      include_role:
+        name: deepsecurity-agent
+      vars:
+        operation: update-configuration
+    - name: Initiate Recommendation Scan
+      include_role:
+        name: deepsecurity-agent
+      vars:
+        operation: run-recommendation-scans
+
+- name: Prepare Facter for Deep Security
+  hosts: labenv
+  become: yes
+  tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+    - name: Install the latest version of "facter"
+      apt:
+        name: facter
+        state: present
+    - name: "Create custom fact directory"
+      file:
+        path: "/etc/ansible/facts.d"
+        state: "directory"
+    - name: "Insert custom fact file"
+      copy:
+        src: ./files/dsa_status.fact
+        dest: /etc/ansible/facts.d/dsa_status.fact
+        mode: 0755

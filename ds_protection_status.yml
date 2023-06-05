@@ -19,7 +19,7 @@
       msg: "{{ ds_result.json }}"
 
 # Sample
-# ansible-playbook s-ds_protection_status.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "hostname":"ubuntu"}'
+# ansible-playbook ds_protection_status.yml --extra-vars '{"dsm_url":"<URL>", "api_key":"<API-KEY>", "hostname":"ubuntu"}'
 #
 # "msg": {
 #     "cves_covered": [

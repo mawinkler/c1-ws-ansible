@@ -1,0 +1,12 @@
+#######################
+# Mandatory Variables #
+#######################
+---
+# For multi-tenant deployments of Deep Security (such as Workload Security), every tenant/organization
+#    is assigned a unique 'tenant_id' and 'token' that is only used for agent activation. You can
+#    find this info from the Support/Help > Deployment Scripts menu in the Deep Security Manager. Select any agent
+#    and then enable "Activate Agent automatically after installation". This places the tenant_id and 
+#    token in the script the wizard is building for you.
+tenant_id: 
+tenant_password: 
+token: 

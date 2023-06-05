@@ -1,0 +1,6 @@
+#######################
+# Mandatory Variables #
+#######################
+---
+# If using a Deep Security environment set this to 'dsm'. For Workload Security set it to 'ws'
+deepsecurity_variant: dsm
